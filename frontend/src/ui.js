@@ -3,7 +3,11 @@
 // --------------------------------------------------
 
 import { useState, useRef, useCallback } from 'react';
-import ReactFlow, { Controls, Background, MiniMap } from 'reactflow';
+import ReactFlow, {
+  Controls,
+  Background,
+  MiniMap,
+} from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
 import { InputNode } from './nodes/InputNode.jsx';
@@ -36,6 +40,7 @@ const selector = (state) => ({
 export const PipelineUI = () => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
   const {
     nodes,
     edges,
@@ -46,38 +51,38 @@ export const PipelineUI = () => {
     onConnect,
   } = useStore(selector, shallow);
 
-  const getInitNodeData = (nodeID, type) => {
-    return { id: nodeID, nodeType: `${type}` };
-  };
+  const getInitNodeData = (nodeID, type) => ({
+    id: nodeID,
+    nodeType: type,
+  });
 
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
-
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      if (event?.dataTransfer?.getData('application/reactflow')) {
-        const appData = JSON.parse(event.dataTransfer.getData('application/reactflow'));
-        const type = appData?.nodeType;
+      const data = event.dataTransfer.getData('application/reactflow');
 
-        if (typeof type === 'undefined' || !type) return;
+      if (!data) return;
 
-        const position = reactFlowInstance.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
-        });
+      const { nodeType: type } = JSON.parse(data);
+      if (!type) return;
 
-        const nodeID = getNodeID(type);
-        const newNode = {
-          id: nodeID,
-          type,
-          position,
-          data: getInitNodeData(nodeID, type),
-        };
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
 
-        addNode(newNode);
-      }
+      const nodeID = getNodeID(type);
+      const newNode = {
+        id: nodeID,
+        type,
+        position,
+        data: getInitNodeData(nodeID, type),
+      };
+
+      addNode(newNode);
     },
-    [reactFlowInstance, getNodeID, addNode] // ✅ Fixed ESLint warning
+    [reactFlowInstance, getNodeID, addNode]
   );
 
   const onDragOver = useCallback((event) => {
