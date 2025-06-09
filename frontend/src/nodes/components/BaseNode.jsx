@@ -7,20 +7,16 @@ const BaseNode = ({
   title,
   children,
   handles = [{ type: 'source', position: Position.Right, id: `${id}-value` }],
-  style = {}
+  className = '',
 }) => {
   return (
-    <div style={{
-      width: 200,
-      border: '1px solid #333',
-      borderRadius: 8,
-      padding: 10,
-      background: '#fff',
-      ...style
-    }}>
-      <div style={{ fontWeight: 'bold', marginBottom: 8 }}>{title}</div>
-      
-      <div style={{ marginBottom: 8 }}>
+    <div
+      className={`w-52 border border-gray-800 rounded-lg p-2.5 bg-white ${className}`}
+      style={{ minWidth: 200 }} // to ensure minimum width, optional
+    >
+      <div className="font-bold mb-2">{title}</div>
+
+      <div className="mb-2">
         {children}
       </div>
 
