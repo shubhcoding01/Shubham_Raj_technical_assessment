@@ -10,10 +10,10 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { InputNode } from './nodes/InputNode';
-import { OutputNode } from './nodes/OutputNode';
-import { LLMNode } from './nodes/LLMNode';
-import { TextNode } from './nodes/TextNode';
+import { InputNode } from './nodes/InputNode.jsx';
+import { OutputNode } from './nodes/OutputNode.jsx';
+import { LLMNode } from './nodes/LLMNode.jsx';
+import { TextNode } from './nodes/TextNode.jsx';
 
 const nodeTypes = {
   inputNode: InputNode,
