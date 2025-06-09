@@ -1,60 +1,69 @@
-// nodes/TextNode.jsx
-import React, { useEffect, useRef, useState } from 'react';
-import { Position, Handle } from 'reactflow';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Handle, Position } from 'reactflow';
 import BaseNode from './components/BaseNode.jsx';
+import TextareaAutosize from 'react-textarea-autosize';
 
-export const TextNode = ({ id, data }) => {
-  const [currText, setCurrText] = useState(data?.text || '{{input}}');
+const VARIABLE_REGEX = /\{\{(\w+)\}\}/g;
+
+const TextNode = ({ id, data, selected }) => {
+  const [text, setText] = useState(data.text || '');
   const [variables, setVariables] = useState([]);
-  const textAreaRef = useRef(null);
 
-  // Resize textarea dynamically
   useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = 'auto';
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
-    }
-  }, [currText]);
+    const found = [...text.matchAll(VARIABLE_REGEX)].map(match => match[1]);
+    setVariables([...new Set(found)]); // ensure uniqueness
+  }, [text]);
 
-  // Detect variables like {{name}} and update handles
-  useEffect(() => {
-    const regex = /{{\s*([a-zA-Z_]\w*)\s*}}/g;
-    const matches = new Set();
-    let match;
+  const onChange = useCallback((e) => {
+    const value = e.target.value;
+    setText(value);
+    data.text = value;
+  }, [data]);
 
-    while ((match = regex.exec(currText)) !== null) {
-      matches.add(match[1]);
-    }
-
-    setVariables([...matches]);
-  }, [currText]);
+  const variableHandles = useMemo(() => {
+    return variables.map((v, i) => (
+      <Handle
+        key={v}
+        type="target"
+        position={Position.Left}
+        id={v}
+        style={{ top: 40 + i * 20 }}
+      />
+    ));
+  }, [variables]);
 
   return (
-    <BaseNode
-      id={id}
-      title="Text"
-      className="bg-gray-800 text-white"
-      handles={[
-        { type: 'source', position: Position.Right, id: `${id}-output` },
-        ...variables.map((v, idx) => ({
-          type: 'target',
-          position: Position.Left,
-          id: `${id}-${v}`,
-          style: { top: `${(idx + 1) * 25}px` }
-        })),
-      ]}
-    >
-      <label className="block text-sm text-white mb-1">
-        Text:
-        <textarea
-          ref={textAreaRef}
-          value={currText}
-          onChange={(e) => setCurrText(e.target.value)}
-          placeholder="Write text with {{variables}}"
-          className="w-full bg-slate-700 text-white rounded p-2 resize-none mt-1 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          rows={1}
+    <BaseNode title="Text" selected={selected}>
+      {variableHandles}
+
+      <div className="mb-2">
+        <label className="block text-sm font-medium text-gray-300 mb-1">Text:</label>
+        <TextareaAutosize
+          value={text}
+          onChange={onChange}
+          minRows={2}
+          className="w-full p-2 rounded border bg-zinc-900 text-white text-sm resize-none"
+          placeholder="Enter text with {{variable}}..."
         />
-      </label>
+      </div>
+
+      {variables.length > 0 && (
+        <div className="mt-2">
+          <label className="block text-xs font-semibold text-gray-400 mb-1">Variables:</label>
+          <div className="flex flex-wrap gap-1">
+            {variables.map(v => (
+              <span
+                key={v}
+                className="bg-blue-900 text-blue-300 text-xs font-medium px-2 py-0.5 rounded-full border border-blue-600"
+              >
+                {v}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </BaseNode>
   );
 };
+
+export default TextNode;
