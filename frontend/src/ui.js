@@ -10,10 +10,11 @@ import ReactFlow, {
 } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
-import { InputNode } from './nodes/InputNode.jsx';
-import { LLMNode } from './nodes/LLMNode.jsx';
-import { OutputNode } from './nodes/OutputNode.jsx';
-import { TextNode } from './nodes/TextNode.jsx';
+import TextNode from './nodes/TextNode.jsx';
+import InputNode from './nodes/InputNode.jsx';
+import OutputNode from './nodes/OutputNode.jsx';
+import LLMNode from './nodes/LLMNode.jsx';
+
 
 import 'reactflow/dist/style.css';
 
