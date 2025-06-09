@@ -11,9 +11,9 @@ import ReactFlow, {
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
 import TextNode from './nodes/TextNode.jsx';
-import InputNode from './nodes/InputNode.jsx';
-import OutputNode from './nodes/OutputNode.jsx';
-import LLMNode from './nodes/LLMNode.jsx';
+import {InputNode} from './nodes/InputNode.jsx';
+import {OutputNode} from './nodes/OutputNode.jsx';
+import {LLMNode }from './nodes/LLMNode.jsx';
 
 
 import 'reactflow/dist/style.css';

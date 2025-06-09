@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { PipelineToolbar } from './toolbar';
