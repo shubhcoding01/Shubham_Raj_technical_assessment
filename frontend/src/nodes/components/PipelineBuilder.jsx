@@ -44,13 +44,35 @@ const PipelineBuilder = () => {
     setNodeId(nodeId + 1);
   };
 
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/pipelines/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nodes, edges }),
+      });
+
+      const result = await response.json();
+
+      alert(`✅ Validation Result:
+Nodes: ${result.num_nodes}
+Edges: ${result.num_edges}
+Is DAG: ${result.is_dag ? 'Yes ✅' : 'No ❌'}
+      `);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Failed to validate pipeline. Check the console.');
+    }
+  };
+
   return (
     <div className="w-full h-screen bg-gray-900 text-white flex flex-col">
-      <div className="p-4 bg-gray-800 border-b border-gray-700 flex gap-4">
+      <div className="p-4 bg-gray-800 border-b border-gray-700 flex gap-4 flex-wrap">
         <button onClick={() => addNode('inputNode')} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Add Input</button>
         <button onClick={() => addNode('textNode')} className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">Add Text</button>
         <button onClick={() => addNode('llmNode')} className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Add LLM</button>
         <button onClick={() => addNode('outputNode')} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Add Output</button>
+        <button onClick={handleSubmit} className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded">Validate Pipeline</button>
       </div>
 
       <div className="flex-1">
