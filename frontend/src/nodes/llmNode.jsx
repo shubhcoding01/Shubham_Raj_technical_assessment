@@ -1,21 +1,23 @@
-// nodes/LLMNode.jsx
+import  BaseNode  from "./components/BaseNode";
 
-import BaseNode from './components/BaseNode.jsx';
-import React from 'react';
-import { Position } from 'reactflow';
+export const LLMNode = (props) => {
+  const { id, data } = props;
 
-export const LLMNode = ({ id, data }) => {
+  const inputHandles = [
+    { id: `${id}-system`, style: { top: `${100 / 3}%` } },
+    { id: `${id}-prompt`, style: { top: `${200 / 3}%` } },
+  ];
+
+  const outputHandles = [{ id: `${id}-response` }];
+
   return (
     <BaseNode
       id={id}
-      title="LLM"
-      handles={[
-        { type: 'target', position: Position.Left, id: `${id}-system`, style: { top: `${100 / 3}%` } },
-        { type: 'target', position: Position.Left, id: `${id}-prompt`, style: { top: `${200 / 3}%` } },
-        { type: 'source', position: Position.Right, id: `${id}-response` }
-      ]}
-    >
-      <span>This is a LLM.</span>
-    </BaseNode>
+      label="LLM"
+      data={data}
+      inputHandles={inputHandles}
+      outputHandles={outputHandles}
+      children={<span>This is a LLM.</span>}
+    />
   );
 };
