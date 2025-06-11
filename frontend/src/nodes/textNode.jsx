@@ -1,69 +1,94 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Handle, Position } from 'reactflow';
-import BaseNode from './components/BaseNode.jsx';
-import TextareaAutosize from 'react-textarea-autosize';
+import { Textarea } from "@nextui-org/react";
+import { useState, useEffect } from "react";
+import { Handle, Position } from "reactflow";
 
-const VARIABLE_REGEX = /\{\{(\w+)\}\}/g;
+export const TextNode = ({ id, data }) => {
+  const [currText, setCurrText] = useState(data?.text || "");
+  const [handles, setHandles] = useState([]);
 
-const TextNode = ({ id, data, selected }) => {
-  const [text, setText] = useState(data.text || '');
-  const [variables, setVariables] = useState([]);
+  const defaultHandleStyle = {
+    background: "#fff",
+    width: "15px",
+    height: "15px",
+    border: "1px solid #000",
+  };
+
+  // Function to handle text changes
+  const handleTextChange = (e) => {
+    const text = e.target.value;
+    setCurrText(text);
+    updateHandlesForVariables(text);
+  };
+
+  // Function to extract variables from text and create handles
+  const updateHandlesForVariables = (text) => {
+    const regex = /\{\{([a-zA-Z_$][a-zA-Z0-9_$]*)\}\}/g;
+    const matches = [...text.matchAll(regex)];
+
+    // Create handles for unique variables found in the text
+    const newHandles = matches.map((match, index) => ({
+      id: `${id}-${match[1]}`,
+      variable: match[1],
+      style: { top: `${(index + 1) * 15}%` },
+    }));
+
+    setHandles(newHandles);
+  };
 
   useEffect(() => {
-    const found = [...text.matchAll(VARIABLE_REGEX)].map(match => match[1]);
-    setVariables([...new Set(found)]); // ensure uniqueness
-  }, [text]);
-
-  const onChange = useCallback((e) => {
-    const value = e.target.value;
-    setText(value);
-    data.text = value;
-  }, [data]);
-
-  const variableHandles = useMemo(() => {
-    return variables.map((v, i) => (
-      <Handle
-        key={v}
-        type="target"
-        position={Position.Left}
-        id={v}
-        style={{ top: 40 + i * 20 }}
-      />
-    ));
-  }, [variables]);
+    updateHandlesForVariables(currText);
+  }, []);
 
   return (
-    <BaseNode title="Text" selected={selected}>
-      {variableHandles}
-
-      <div className="mb-2">
-        <label className="block text-sm font-medium text-gray-300 mb-1">Text:</label>
-        <TextareaAutosize
-          value={text}
-          onChange={onChange}
-          minRows={2}
-          className="w-full p-2 rounded border bg-zinc-900 text-white text-sm resize-none"
-          placeholder="Enter text with {{variable}}..."
+    <div
+      className={`px-5 py-4 w-80 border-2 bg-white flex flex-col gap-2 border-blue-600 shadow-lg rounded-lg `}
+    >
+      <Handle
+        type="source"
+        position={Position.Right}
+        id={`${id}-output`}
+        className="bg-white w-3 h-3 rounded-full border-1 border-purple-500"
+        style={defaultHandleStyle}
+      />
+      <div>
+        <Textarea
+          label="Prompt"
+          placeholder="Enter text with variables like {{context}}"
+          value={currText}
+          onChange={handleTextChange}
+          variant="bordered"
+          radius="full"
+          className="w-full h-full text-xl"
         />
       </div>
 
-      {variables.length > 0 && (
-        <div className="mt-2">
-          <label className="block text-xs font-semibold text-gray-400 mb-1">Variables:</label>
-          <div className="flex flex-wrap gap-1">
-            {variables.map(v => (
-              <span
-                key={v}
-                className="bg-blue-900 text-blue-300 text-xs font-medium px-2 py-0.5 rounded-full border border-blue-600"
-              >
-                {v}
-              </span>
-            ))}
+      {/* Dynamically render handles and variable labels for variables */}
+      {handles.map((handle, index) => (
+        <div
+          key={handle.id}
+          style={{ position: "absolute", left: 0, top: handle.style.top }}
+        >
+          <Handle
+            type="target"
+            position={Position.Left}
+            id={handle.id}
+            className="bg-white w-3 h-3 rounded-full border-1 border-purple-500"
+            style={defaultHandleStyle}
+          />
+          <div
+            style={{
+              position: "relative",
+              top: "10px",
+              left: "-35px",
+              fontSize: "12px",
+              color: "gray",
+              width: "100px",
+            }}
+          >
+            {handle.variable}
           </div>
         </div>
-      )}
-    </BaseNode>
+      ))}
+    </div>
   );
 };
-
-export default TextNode;
