@@ -1,24 +1,21 @@
-import  BaseNode  from "./components/BaseNode.jsx";
+import  BaseNode  from "./components/BaseNode";
 
-export const InputNode = ({ id, data }) => {
+export const InputNode = (props) => {
+  const { id, data } = props;
+
   const customFields = [
-    {
-      label: "Name",
-      name: "inputName",
-      type: "text",
-      default: data?.inputName || id.replace("node-", "input_"),
-    },
+    { label: "Name", name: "inputName", type: "text" },
     {
       label: "Type",
       name: "inputType",
       type: "select",
       options: ["Text", "File"],
-      default: data?.inputType || "Text",
+      default: "Text",
     },
   ];
 
-  const inputHandles = []; // Input node has no inputs
-  const outputHandles = [{ id: `${id}-output` }]; // Output handle for connections
+  const inputHandles = [];
+  const outputHandles = [{ id: `${id}-output` }];
 
   return (
     <BaseNode
